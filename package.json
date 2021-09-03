@@ -6,5 +6,39 @@
   "repository": "https://github.com/qi-lang/interactive.git",
   "author": "zana-a <zana200.a@gmail.com>",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "devDependencies": {
+    "@types/chai": "^4.2.21",
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/parser": "^4.29.1",
+    "concurrently": "^6.2.1",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.24.0",
+    "nodemon": "^2.0.12",
+    "shx": "^0.3.3",
+    "typescript": "^4.3.5"
+  },
+  "scripts": {
+    "format": "eslint ./src/*/**.ts --fix",
+    "tidy": "yarn format && shx rm -rf dist",
+    "clean": "yarn tidy && shx rm -rf node_modules",
+    "build": "yarn tidy && tsc -p tsconfig.build.json",
+    "watch": "concurrently -k -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"tsc -p tsconfig.build.json --watch\" \"nodemon\"",
+    "dev": "yarn tidy && yarn watch",
+    "test": "mocha --require ts-node/register --recursive ./test/**/*.ts"
+  },
+  "dependencies": {
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.6.0",
+    "ansi-styles": "^6.1.0",
+    "arcsecond": "^4.0.0",
+    "chai": "^4.3.4",
+    "consola": "^2.15.3",
+    "fp-ts": "^2.11.1",
+    "mocha": "^9.0.3",
+    "parser-ts": "^0.6.14",
+    "ts-node": "^10.2.0"
+  }
 }
