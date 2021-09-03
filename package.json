@@ -9,6 +9,7 @@
   "private": false,
   "devDependencies": {
     "@types/chai": "^4.2.21",
+    "@types/terminal-kit": "^1.28.4",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
     "concurrently": "^6.2.1",
@@ -21,12 +22,12 @@
     "typescript": "^4.3.5"
   },
   "scripts": {
-    "format": "eslint ./src/*/**.ts --fix",
+    "format": "eslint */**.ts --fix",
     "tidy": "yarn format && shx rm -rf dist",
     "clean": "yarn tidy && shx rm -rf node_modules",
     "build": "yarn tidy && tsc -p tsconfig.build.json",
-    "watch": "concurrently -k -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"tsc -p tsconfig.build.json --watch\" \"nodemon\"",
-    "dev": "yarn tidy && yarn watch",
+    "watch": "tsc -w -p tsconfig.build.json",
+    "dev": "yarn watch",
     "test": "mocha --require ts-node/register --recursive ./test/**/*.ts"
   },
   "dependencies": {
@@ -39,6 +40,7 @@
     "fp-ts": "^2.11.1",
     "mocha": "^9.0.3",
     "parser-ts": "^0.6.14",
+    "terminal-kit": "^2.1.6",
     "ts-node": "^10.2.0"
   }
 }
