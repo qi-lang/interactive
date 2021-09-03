@@ -1,0 +1,10 @@
+{
+  "name": "qi-lang-interactive",
+  "version": "0.0.1",
+  "description": "Qi Lang Interactive",
+  "main": "dist/index.js",
+  "repository": "https://github.com/qi-lang/interactive.git",
+  "author": "zana-a <zana200.a@gmail.com>",
+  "license": "MIT",
+  "private": false
+}
