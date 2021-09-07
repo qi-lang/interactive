@@ -8,7 +8,6 @@ import * as Fs from 'fs';
 import * as Os from 'os';
 import * as Path from 'path';
 import * as Terminal from 'terminal-kit';
-import * as Node from 'ts-node';
 
 interface IBuilderOptions {
   path: string
@@ -42,7 +41,7 @@ class Builder {
   }
 
   public prompt(history: Array<string>) {
-    Terminal.terminal('%>');
+    Terminal.terminal.brightWhite('%>');
 
     Terminal.terminal.inputField({ history }, (err, input) => {
       if (err) {
@@ -71,9 +70,9 @@ class Builder {
   }
 
   public run() {
+    Terminal.terminal.windowTitle('Interactive Qi');
     Terminal.terminal.clear();
-    Terminal.terminal(`Interactive [Program]([version]) — Using node ${process.version}\n`);
-
+    Terminal.terminal(`Interactive Qi (${undefined}) — using node ${process.version}\n`);
     Terminal.terminal.green(`Reading history from: ${this.evaluatedPath}\n`);
 
     this.prepareHistory();
