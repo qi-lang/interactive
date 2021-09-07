@@ -4,41 +4,86 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import Fs from 'fs';
-import Os from 'os';
+import * as Fs from 'fs';
+import * as Os from 'os';
+import * as Path from 'path';
 import * as Terminal from 'terminal-kit';
+import * as Node from 'ts-node';
 
-const logger = Fs.createWriteStream(`${Os.homedir()}/qi.log`, {
-  flags: 'a',
-});
-
-function prompt(history: Array<string>) {
-  Terminal.terminal('>>>');
-  Terminal.terminal.inputField({ history }, (err, input) => {
-    if (err) prompt(history);
-    else if (input === '') {
-      Terminal.terminal('\n');
-      prompt(history);
-    } else if (input !== '@e') {
-      Terminal.terminal(`\n${input}\n`);
-      history.push(input as string);
-      logger.write(`${input}\n`);
-      prompt(history);
-    } else {
-      Terminal.terminal('\nBye, bye!\n');
-      process.exit(0);
-    }
-  });
+interface IBuilderOptions {
+  path: string
 }
 
-Fs.readFile(`${Os.homedir()}/qi.log`, (err, data) => {
-  if (err) {
-    Terminal.terminal(`Could not open file ${Os.homedir()}qi.log: ${err}`);
-    const history : string[] = [];
-    prompt(history);
-  } else {
-    const history = data.toString().split(Os.EOL);
-    history.pop();
-    prompt(history);
+class Builder {
+  public readonly parsedPath: Path.ParsedPath;
+
+  public readonly evaluatedPath: string;
+
+  constructor(options: IBuilderOptions) {
+    this.parsedPath = Path.parse(options.path);
+    this.evaluatedPath = this.parsedPath.dir + Path.sep + this.parsedPath.base;
   }
-});
+
+  public prepareHistory() {
+    if (!(Fs.existsSync(Path.normalize(this.evaluatedPath)))) {
+      Fs.mkdirSync(this.parsedPath.dir);
+      Fs.writeFileSync(this.evaluatedPath, '', { flag: 'a' });
+    }
+  }
+
+  public getHistory(): Buffer {
+    this.prepareHistory();
+    return Fs.readFileSync(this.evaluatedPath);
+  }
+
+  public pushLine(s: string) {
+    const logger = Fs.createWriteStream(this.evaluatedPath, { flags: 'a' });
+    logger.write(s);
+  }
+
+  public prompt(history: Array<string>) {
+    Terminal.terminal('%>');
+
+    Terminal.terminal.inputField({ history }, (err, input) => {
+      if (err) {
+        throw new Error(err);
+      }
+
+      if (input === '') {
+        Terminal.terminal('\n');
+        this.prompt(history);
+        return;
+      }
+
+      if (input !== '!e') {
+        Terminal.terminal(`\n${input}\n`);
+
+        if (input != null) history.push(input);
+        this.pushLine(`${input}\n`);
+
+        this.prompt(history);
+        return;
+      }
+
+      Terminal.terminal('\nBye, bye!\n');
+      process.exit(0);
+    });
+  }
+
+  public run() {
+    Terminal.terminal.clear();
+    Terminal.terminal(`Interactive [Program]([version]) — Using node ${process.version}\n`);
+
+    Terminal.terminal.green(`Reading history from: ${this.evaluatedPath}\n`);
+
+    this.prepareHistory();
+    const history = this.getHistory().toString().split(Os.EOL);
+    history.pop();
+
+    this.prompt(history);
+  }
+}
+
+new Builder({
+  path: `${Os.homedir()}/.qi/history.log`,
+}).run();
