@@ -4,4 +4,4 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-const mock = 'Hello, Test!';
+export const mock = 'Hello, Test!';

@@ -106,6 +106,7 @@ dist
 
 
 #
+core
 dist/
 .vscode
 .idea/

@@ -41,7 +41,7 @@ class Builder {
   }
 
   public prompt(history: Array<string>) {
-    Terminal.terminal.brightWhite('%>');
+    Terminal.terminal.white('%>');
 
     Terminal.terminal.inputField({ history }, (err, input) => {
       if (err) {
