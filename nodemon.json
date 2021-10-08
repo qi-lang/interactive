@@ -1,8 +1,0 @@
-{
-  "runOnChangeOnly": true,
-  "ignore": [
-    "node_modules",
-    "test",
-    "src"
-  ]
-}
