@@ -23,13 +23,19 @@ pub fn init<T: std::fmt::Debug>(parser: fn(&str) -> nom::IResult<&str, T>) {
 
                 match result {
                     Ok((_, product)) => {
-                        println!("{:?}", product);
+                        println!("{:#?}", product);
                         counter += 1
                     }
                     Err(e) => match e {
-                        nom::Err::Incomplete(i) => panic!("{:?}", i),
-                        nom::Err::Error(i) => panic!("{:?}", i),
-                        nom::Err::Failure(i) => panic!("{:?}", i),
+                        nom::Err::Incomplete(i) => {
+                            eprintln!("Incomplete: {:#?}", i);
+                        }
+                        nom::Err::Error(i) => {
+                            eprintln!("Error: {:#?}", i);
+                        }
+                        nom::Err::Failure(i) => {
+                            eprintln!("Failure: {:#?}", i);
+                        }
                     },
                 }
             }
