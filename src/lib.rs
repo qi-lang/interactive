@@ -1,24 +1,53 @@
+use std::path;
+
 /*
  * Copyright Qi Lang. 2021 All Rights Reserved.
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
 
-use rustyline::error::ReadlineError;
-use rustyline::Editor;
-
-pub fn init<T: std::fmt::Debug>(parser: fn(&str) -> nom::IResult<&str, T>) {
-    // `()` can be used when no completer is required
-    let mut rl = Editor::<()>::new();
+pub fn init<T>(parser: fn(&str) -> nom::IResult<&str, T>)
+where
+    T: std::fmt::Debug,
+{
+    let mut editor = rustyline::Editor::<()>::new();
     let mut counter: usize = 0;
-    if rl.load_history("history.txt").is_err() {
-        println!("No previous history.");
+
+    let home_dir = match dirs::home_dir() {
+        Some(path) => format!("{}", path.as_path().to_str().unwrap()),
+        None => panic!("A home directory was not found"),
+    };
+
+    let qi_folder = format!("{}/.qi/", home_dir);
+
+    let history_file = "history.log";
+
+    let history_file_path = format!("{}{}", qi_folder, history_file);
+
+    if editor.load_history(history_file_path.as_str()).is_err() {
+        println!("No previous history found.");
+
+        let folders = std::fs::create_dir_all(qi_folder);
+
+        match folders {
+            Ok(_) => {
+                let file = std::fs::write(&history_file_path, "");
+                match file {
+                    Ok(_) => println!("File created at: {}", &history_file_path),
+                    Err(e) => panic!("{}", e),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
     }
+
     loop {
-        let readline = rl.readline(format!("qi({})>", &counter).as_str());
+        let readline = editor.readline(format!("qi({})>", &counter).as_str());
+
         match readline {
             Ok(line) => {
-                rl.add_history_entry(line.as_str());
+                editor.add_history_entry(line.as_str());
+
                 let result = parser(&line);
 
                 match result {
@@ -38,12 +67,14 @@ pub fn init<T: std::fmt::Debug>(parser: fn(&str) -> nom::IResult<&str, T>) {
                         }
                     },
                 }
+
+                //
             }
-            Err(ReadlineError::Interrupted) => {
+            Err(rustyline::error::ReadlineError::Interrupted) => {
                 println!("CTRL-C");
                 break;
             }
-            Err(ReadlineError::Eof) => {
+            Err(rustyline::error::ReadlineError::Eof) => {
                 println!("CTRL-D");
                 break;
             }
@@ -53,5 +84,5 @@ pub fn init<T: std::fmt::Debug>(parser: fn(&str) -> nom::IResult<&str, T>) {
             }
         }
     }
-    // rl.save_history("history.txt").unwrap();
+    editor.save_history(history_file_path.as_str()).unwrap();
 }
