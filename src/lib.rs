@@ -1,1 +1,2 @@
-const INTERACTIVE: bool = false;
+pub const INTERACTIVE: bool = false;
+
